@@ -10,4 +10,4 @@
  * @copyright Copyright (c) 2012, NewClarity LLC
  *
  */
-define( 'CONDUIT', true );
+
