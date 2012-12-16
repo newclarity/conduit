@@ -76,7 +76,7 @@ if( ! class_exists( 'Conduit' ) ) {
 			 * Unset them in $args if they are set.
 			 * Top level variables are: 'before', 'after', 'itemtype'
 			 */
-			$local = self::_get_top_level_args( &$args );
+			$local = self::_get_top_level_args( $args );
 
 			/**
 			 * Check to see if a container field previously set the same Schema.org itemtype (i.e. 'Person')
