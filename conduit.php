@@ -3,7 +3,7 @@
  * Conduit Integrations Library for WordPress
  *
  * @package Conduit
- * @version 0.2
+ * @version 0.3
  * @filesource https://github.com/getsunrise/imperative
  * @author Micah Wood <micah@newclarity.net>
  * @author Mike Schinkel <mike@newclarity.net>
@@ -76,7 +76,7 @@ if( ! class_exists( 'Conduit' ) ) {
 			 * Unset them in $args if they are set.
 			 * Top level variables are: 'before', 'after', 'itemtype'
 			 */
-			$local = self::_get_top_level_args( &$args );
+			$local = self::_get_top_level_args( $args );
 
 			/**
 			 * Check to see if a container field previously set the same Schema.org itemtype (i.e. 'Person')
@@ -104,12 +104,15 @@ if( ! class_exists( 'Conduit' ) ) {
 			/**
 			 * Look for the most specific "handler" for this field, if there is one.
 			 */
-			$value = locate_handler( array(
-				'field_post_type_name' => "field_name={$field_name}&post_type={$args['post']->post_type}",
-				'field_post_type' =>  "post_type={$args['post']->post_type}",
-				'field_name' => "field_name={$field_name}",
-				'field' => false,
-			), array( $field_name, $args ) );
+			$handlers = array();
+			if( isset( $args['post'] ) && is_object( $args['post'] ) && property_exists( $args['post'], 'post_type' ) ) {
+				$handlers['field_post_type_name'] = "field_name={$field_name}&post_type={$args['post']->post_type}";
+				$handlers['field_post_type'] = "post_type={$args['post']->post_type}";
+			}
+			$handlers['field_name'] = "field_name={$field_name}";
+			$handlers['field'] = false;
+
+			$value = locate_handler( $handlers, array( $field_name, $args ) );
 
 			/**
 			 * @deprecated The 'pre_get_field' hook will be removed soon.
@@ -210,29 +213,4 @@ if( ! class_exists( 'Conduit' ) ) {
 			return $value;
 		}
 	}
-
-//	/**
-//	 * register_virtual_field( 'hyperlinked_full_name', 'post_type=person', 'Person_Class' );
-//	 */
-//	 function register_virtual_field( $field_name, $args, $callable_owner = false ) {
-//			$handlers = array(
-//				'field' => array( 'criteria' => false, 'callable' => "field" ),
-//				'field_name' => array( 'criteria' => "field_name={$field_name}", 'callable' => "field_{$field_name}" ),
-//			);
-//			if ( isset( $args['post_type'] ) ) {
-//				$post_type_object = get_post_type_object( $args['post_type'] );
-//				$handlers['field_post_type'] = array(
-//					'criteria' =>	"post_type={$args['post_type']}",
-//					'callable' =>	"field_{$post_type_object->label}",
-//					);
-//				$handlers['field_post_type_name'] = array(
-//					'criteria' =>	"field_name={$field_name}&post_type={$args['post_type']}",
-//					'callable' =>	"field_{$post_type_object->label}_{$field_name}",
-//					);
-//			}
-//			foreach( $handlers as $handler => $handler_info ) {
-//				$callable = $callable_owner ? array( $callable_owner, $handler_info['callable'] ) : $handler_info['callable'];
-//				add_handler( $handler, $callable, $handler_info['criteria'] );
-//			}
-//		}
 }
